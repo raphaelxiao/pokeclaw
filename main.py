@@ -19,10 +19,15 @@ logging.basicConfig(
 log = logging.getLogger("openclaw")
 from display import Display
 from record_audio import Recorder, check_audio_level
-from transcribe_openai import transcribe
 from openclaw_client import stream_response
 from button_ptt import ButtonPTT, State
-from tts_openai import TTSPlayer
+
+if config.AUDIO_PROVIDER == "gemini":
+    from transcribe_gemini import transcribe
+    from tts_gemini import TTSPlayer
+else:
+    from transcribe_openai import transcribe
+    from tts_openai import TTSPlayer
 
 
 class Assistant:

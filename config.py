@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+AUDIO_PROVIDER = os.environ.get("AUDIO_PROVIDER", "openai").lower() # "openai" or "gemini"
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_TRANSCRIBE_MODEL = os.environ.get(
@@ -22,6 +23,10 @@ OPENAI_TTS_INSTRUCTIONS = os.environ.get(
 
 OPENCLAW_BASE_URL = os.environ.get("OPENCLAW_BASE_URL", "http://localhost:18789")
 OPENCLAW_TOKEN = os.environ.get("OPENCLAW_TOKEN", "")
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_TTS_VOICE = os.environ.get("GEMINI_TTS_VOICE", "Aoede")
 
 AUDIO_DEVICE = os.environ.get("AUDIO_DEVICE", "plughw:1,0")
 AUDIO_OUTPUT_DEVICE = os.environ.get("AUDIO_OUTPUT_DEVICE", "default")
@@ -51,13 +56,17 @@ def print_config():
     print(f"OPENAI_TTS_SPEED        = {OPENAI_TTS_SPEED}")
     print(f"OPENAI_TTS_GAIN_DB      = {OPENAI_TTS_GAIN_DB}")
     print(f"OPENAI_TTS_INSTRUCTIONS = {OPENAI_TTS_INSTRUCTIONS[:60]}...")
+    print(f"GEMINI_MODEL            = {GEMINI_MODEL}")
+    print(f"GEMINI_TTS_VOICE        = {GEMINI_TTS_VOICE}")
     print(f"OPENCLAW_BASE_URL       = {OPENCLAW_BASE_URL}")
     print(f"AUDIO_DEVICE            = {AUDIO_DEVICE}")
     print(f"AUDIO_OUTPUT_DEVICE     = {AUDIO_OUTPUT_DEVICE}")
     print(f"AUDIO_SAMPLE_RATE       = {AUDIO_SAMPLE_RATE}")
     print(f"DRY_RUN                 = {DRY_RUN}")
     print(f"LCD_BACKLIGHT           = {LCD_BACKLIGHT}")
+    print(f"AUDIO_PROVIDER          = {AUDIO_PROVIDER}")
     print(f"OPENAI_API_KEY set      = {bool(OPENAI_API_KEY)}")
+    print(f"GEMINI_API_KEY set      = {bool(GEMINI_API_KEY)}")
     print(f"OPENCLAW_TOKEN set      = {bool(OPENCLAW_TOKEN)}")
     print(f"ENABLE_TTS              = {ENABLE_TTS}")
     print(f"CONVERSATION_HISTORY    = {CONVERSATION_HISTORY_LENGTH}")
