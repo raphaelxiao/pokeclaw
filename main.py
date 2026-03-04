@@ -210,7 +210,7 @@ class Assistant:
             if self._tts:
                 tts_buffer += delta
                 # Match both English and Chinese sentence-ending punctuation, plus newlines
-                sentence_ends = list(re.finditer(r"[.!?。！？]\s*|\n", tts_buffer))
+                sentence_ends = list(re.finditer(r"[.!?。！？:：;；]\s*|\n", tts_buffer))
                 if len(sentence_ends) >= 1:
                     cut = sentence_ends[0].end()
                     chunk = tts_buffer[:cut].strip()
