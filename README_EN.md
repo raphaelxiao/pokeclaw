@@ -17,8 +17,8 @@ Button press → Record audio → Transcribe (OpenAI/Gemini/GLM) → Stream LLM 
 3. The transcript is streamed to your **[OpenClaw](https://openclaw.ai) gateway** for a response
 4. Text streams onto the **LCD** in real time with pixel-accurate word wrapping, like a typewriter
 5. Optionally **speaks the response** via TTS as soon as the first sentence completes
-6. The idle screen shows a **character idle animation**, clock, date, battery %, and WiFi status
-7. The character animation loops fluidly between idle, talking, listening, and thinking states. When talking, it automatically **lip-syncs** to the volume (RMS) of the TTS output!
+6. The idle screen shows a clock, date, battery %, and WiFi status
+7. When active, the character animation loops fluidly between listening, thinking, and talking states. When talking, it automatically **lip-syncs** to the volume (RMS) of the TTS output!
 
 The device includes a **silence gate** to skip empty recordings, and OpenClaw automatically maintains your **conversation memory** across exchanges via cloud session keys.
 
@@ -78,7 +78,7 @@ Or deploy as a systemd background service using the included `sync.sh` script.
 
 ## Configuration Cheat Sheet
 
-All settings are configured via environment variables (loaded from `.env`):
+Advanced settings can be configured via environment variables (in `.env`) and defaults hardcoded in `core/config.py`:
 
 | Variable | Default | Description |
 |---|---|---|
