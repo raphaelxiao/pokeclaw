@@ -3,7 +3,8 @@
 [English](README_EN.md) | [中文](README.md)
 
 ![PokeClaw Demo](assets/screenshots/picture_demo.jpg)
-[🎥 Watch the Video Demo on YouTube](https://youtube.com/shorts/Jh96Oza_5nA)
+
+<video src="https://github.com/raphaelxiao/pizero-openclaw/raw/main/assets/screenshots/video_demo.mp4" controls="controls" width="800"></video>
 
 PokeClaw is a voice-controlled AI desktop assistant built on a Raspberry Pi Zero W utilizing the [PiSugar WhisPlay board](https://www.pisugar.com). Simply press the physical button to speak, and get a streamed response on the 1.54" LCD accompanied by an animated character (defaults to "kirby" or "lobster") and TTS playback.
 
