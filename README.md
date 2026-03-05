@@ -3,7 +3,7 @@
 [English](README_EN.md) | [中文](README.md)
 
 ![PokeClaw Demo](assets/screenshots/picture_demo.jpg)
-[🎥 点击观看视频演示 (Watch Video Demo)](assets/screenshots/video_demo.mp4)
+[🎥 点击观看 YouTube 视频演示 (Watch Video Demo)](https://youtube.com/shorts/Jh96Oza_5nA)
 
 PokeClaw 是一个基于 Raspberry Pi Zero W 搭配 [PiSugar WhisPlay 扩展板](https://www.pisugar.com) 构建的语音控制 AI 桌面机器人。按下实体按键即可语音对话，它不仅能通过屏幕实时显示流式回复，还会配以生动的角色动画（默认角色包含卡比与龙虾）以及语音播报。
 
