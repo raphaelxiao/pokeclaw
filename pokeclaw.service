@@ -1,0 +1,18 @@
+[Unit]
+Description=Pi Zero PokeClaw Voice Terminal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# If you changed PI_USER in .env, sync.sh will update the User and paths below during deployment.
+# If installing manually, update them yourself to match PI_USER in .env.
+User=pi
+WorkingDirectory=/home/pi/pokeclaw
+EnvironmentFile=/home/pi/pokeclaw/.env
+ExecStart=/usr/bin/python3 -m core.main
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
