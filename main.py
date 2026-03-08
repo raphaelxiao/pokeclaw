@@ -1,5 +1,7 @@
 import logging
 import re
+
+from core.tts_preprocess import preprocess_for_tts
 import signal
 import sys
 import threading
@@ -211,14 +213,14 @@ class Assistant:
             # Streaming TTS: batch 1 sentence at a time for fast response
             if self._tts:
                 tts_buffer += delta
-                # Match both English and Chinese sentence-ending punctuation, plus newlines
-                sentence_ends = list(re.finditer(r"[.!?。！？:：;；]\s*|\n", tts_buffer))
+                # Match sentence-ending punctuation; skip '.' between digits (e.g. 129.80)
+                sentence_ends = list(re.finditer(r"(?<!\d)\.(?!\d)\s*|[!?。！？:：;；]\s*|\n", tts_buffer))
                 if len(sentence_ends) >= 1:
                     cut = sentence_ends[0].end()
                     chunk = tts_buffer[:cut].strip()
                     tts_buffer = tts_buffer[cut:]
                     if chunk:
-                        self._tts.submit(chunk)
+                        self._tts.submit(preprocess_for_tts(chunk))
 
         # Stale worker: exit without touching display, TTS, or history
         if self._is_stale(my_gen):
@@ -229,7 +231,7 @@ class Assistant:
         # Submit remaining TTS buffer and wait for playback to finish
         if self._tts:
             if tts_buffer.strip():
-                self._tts.submit(tts_buffer.strip())
+                self._tts.submit(preprocess_for_tts(tts_buffer.strip()))
             self._tts.flush()
             self.display.stop_character()
             self.display.set_response_text(full_response)
