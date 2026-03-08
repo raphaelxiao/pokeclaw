@@ -77,11 +77,12 @@ class TTSPlayer:
             return self._mouth_timeline[frame_idx]
         return -1
 
-    def submit(self, text: str) -> None:
+    def submit(self, text: str, raw_text: str = "") -> None:
         t = (text or "").strip()
+        r = (raw_text or text or "").strip()
         if not t or (config.DRY_RUN and not config.GEMINI_API_KEY):
             return
-        self._submit_q.put(t)
+        self._submit_q.put((t, r))
 
     def flush(self) -> None:
         """Block until all queued sentences have been played."""
@@ -121,7 +122,7 @@ class TTSPlayer:
             if self._cancel.is_set():
                 self._play_q.put(_SENTINEL)
                 continue
-            text = str(item).strip()
+            text, raw_text = item
             if not text:
                 continue
             wav_data = self._fetch_wav(text)
@@ -129,7 +130,7 @@ class TTSPlayer:
                 self._play_q.put(_SENTINEL)
                 continue
             if wav_data:
-                self._play_q.put((text, wav_data))
+                self._play_q.put((raw_text, wav_data))
             else:
                 print(f"[tts] skipping sentence (fetch failed): {text[:40]}")
 
@@ -224,8 +225,8 @@ class TTSPlayer:
                 self._mouth_timeline = []
                 self.is_speaking.clear()
                 continue
-            text, wav_data = item
-            self._full_text = text
+            raw_text, wav_data = item
+            self._full_text = raw_text
             self._play_wav(wav_data)
         self._full_text = ""
         self.is_speaking.clear()

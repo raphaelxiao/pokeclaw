@@ -26,13 +26,15 @@ _EMOJI_RE = re.compile(
     flags=re.UNICODE,
 )
 
-# ── Markdown table detection ────────────────────────────────────────────────
-# Matches 2+ consecutive lines that start with |
-_TABLE_RE = re.compile(r"(?:^[ \t]*\|.*$\n?){2,}", re.MULTILINE)
+# ── Markdown table & bullet list state ──────────────────────────────────────
+_in_table = False
+_bullet_index = 0
 
-# ── Bullet list detection ───────────────────────────────────────────────────
-# Matches consecutive lines starting with - or *
-_BULLET_LINE_RE = re.compile(r"^[ \t]*[-*][ \t]+(.+)$", re.MULTILINE)
+def reset_tts_state():
+    """Reset the state for tables and bullets at the start of a response."""
+    global _in_table, _bullet_index
+    _in_table = False
+    _bullet_index = 0
 
 _CN_ORDINALS = [
     "第一", "第二", "第三", "第四", "第五",
@@ -124,39 +126,42 @@ def num_to_chinese(num) -> str:
     return chn
 
 
-# ── Main preprocessor ───────────────────────────────────────────────────────
+def _process_structural(text: str) -> str:
+    """Handle tables and bullets statefully, assuming line-by-line or short chunks."""
+    global _in_table, _bullet_index
 
-def _replace_tables(text: str) -> str:
-    """Replace markdown tables with a spoken placeholder."""
-    return _TABLE_RE.sub("此处我整理了表格，可以在屏幕阅读。", text)
+    stripped = text.strip()
+    
+    # 1. Table rows: start and end with '|' (roughly)
+    if stripped.startswith("|") and stripped.endswith("|") and len(stripped) > 2:
+        if not _in_table:
+            _in_table = True
+            return "此处我整理了表格，可以在屏幕阅读。"
+        else:
+            return ""  # Skip subsequent table rows
+    else:
+        _in_table = False
 
+    # 2. Bullet lists: start with '- ' or '* '
+    m = re.match(r"^[-*][ \t]+(.*)$", stripped)
+    if m:
+        item = m.group(1).strip()
+        idx = _bullet_index
+        _bullet_index += 1
+        ordinal = _CN_ORDINALS[idx] if idx < len(_CN_ORDINALS) else f"第{num_to_chinese(idx + 1)}"
+        return f"{ordinal}，{item}"
+    else:
+        _bullet_index = 0
 
-def _replace_bullets(text: str) -> str:
-    """Replace bullet lists with numbered Chinese reading.
-
-    - apple       ->  第一，apple。第二，banana。第三，cherry。
-    - banana
-    - cherry
-    """
-    def _replace_block(match: re.Match) -> str:
-        block = match.group(0)
-        items = _BULLET_LINE_RE.findall(block)
-        parts = []
-        for i, item in enumerate(items):
-            ordinal = _CN_ORDINALS[i] if i < len(_CN_ORDINALS) else f"第{num_to_chinese(i + 1)}"
-            parts.append(f"{ordinal}，{item.strip()}")
-        return "。".join(parts) + "。"
-
-    # Match consecutive bullet lines as a block
-    return re.sub(r"(?:^[ \t]*[-*][ \t]+.+$\n?)+", _replace_block, text, flags=re.MULTILINE)
-
+    return text
 
 def preprocess_for_tts(text: str) -> str:
     """Preprocess text for TTS — convert numbers, symbols, structures to spoken Chinese."""
 
     # ── 1. Structural content (tables, bullets) ──
-    text = _replace_tables(text)
-    text = _replace_bullets(text)
+    text = _process_structural(text)
+    if not text:
+        return ""
 
     # ── 2. Symbol replacements ──
     text = text.replace("～", "至")
@@ -227,16 +232,20 @@ if __name__ == "__main__":
         ("A>B", "A大于B"),
         ("100GWh", "一百吉瓦时"),
         (
-            "| 名称 | 价格 |\n| --- | --- |\n| 苹果 | 5元 |",
+            "| 名称 | 价格 |",
             "此处我整理了表格，可以在屏幕阅读。",
         ),
         (
-            "- 苹果\n- 香蕉\n- 橙子",
-            "第一，苹果。第二，香蕉。第三，橙子。",
+            "| --- | --- |",
+            "",
         ),
         (
-            "- 第一点内容\n- 第二点内容",
-            "第一，第一点内容。第二，第二点内容。",
+            "- 苹果",
+            "第一，苹果",
+        ),
+        (
+            "- 香蕉",
+            "第二，香蕉",
         ),
     ]
 

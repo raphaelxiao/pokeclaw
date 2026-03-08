@@ -1,7 +1,7 @@
 import logging
 import re
 
-from core.tts_preprocess import preprocess_for_tts
+from core.tts_preprocess import preprocess_for_tts, reset_tts_state
 import signal
 import sys
 import threading
@@ -204,6 +204,7 @@ class Assistant:
                     self.display.set_character_state("talking")
                 self.display.stop_spinner()
                 self.display.set_response_text("")
+                reset_tts_state()
                 first_token = False
             full_response += delta
             # Only append text to display if TTS is disabled (character animation owns the screen otherwise)
@@ -220,7 +221,7 @@ class Assistant:
                     chunk = tts_buffer[:cut].strip()
                     tts_buffer = tts_buffer[cut:]
                     if chunk:
-                        self._tts.submit(preprocess_for_tts(chunk))
+                        self._tts.submit(preprocess_for_tts(chunk), raw_text=chunk)
 
         # Stale worker: exit without touching display, TTS, or history
         if self._is_stale(my_gen):
@@ -231,7 +232,7 @@ class Assistant:
         # Submit remaining TTS buffer and wait for playback to finish
         if self._tts:
             if tts_buffer.strip():
-                self._tts.submit(preprocess_for_tts(tts_buffer.strip()))
+                self._tts.submit(preprocess_for_tts(tts_buffer.strip()), raw_text=tts_buffer.strip())
             self._tts.flush()
             self.display.stop_character()
             self.display.set_response_text(full_response)
